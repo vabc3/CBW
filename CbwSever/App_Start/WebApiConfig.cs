@@ -15,10 +15,15 @@ namespace CbwSever
 
         private static Microsoft.OData.Edm.IEdmModel GetModel()
         {
-            ODataConventionModelBuilder builder = new ODataConventionModelBuilder { Namespace = "Cbw" };
+            ODataConventionModelBuilder builder = new ODataConventionModelBuilder
+            {
+                Namespace = "Cbw",
+                ContainerName = "CbwContainer"
+            };
             //builder.EnumType<DisplayMode>();
             //builder.ComplexType<CaptionConfig>();
             //builder.EntityType<Channel>();
+
             builder.EntitySet<Channel>("Channels");
             return builder.GetEdmModel();
         }

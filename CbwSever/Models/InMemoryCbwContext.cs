@@ -14,6 +14,8 @@ namespace CbwSever
         public InMemoryCbwContext()
         {
             var channel0 = new Channel { Id = 0, Title = "Public Channel", Description = "Welcome to CBW" };
+            channel0.Captions.Add(new Caption { Text = "show what?" });
+
             channels = new List<Channel> { channel0 };
         }
 

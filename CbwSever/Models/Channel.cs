@@ -6,6 +6,11 @@ namespace Cbw
 {
     public class Channel
     {
+        public Channel()
+        {
+            this.Captions = new List<Caption>();
+        }
+
         public int Id { get; set; }
         
         [Required]

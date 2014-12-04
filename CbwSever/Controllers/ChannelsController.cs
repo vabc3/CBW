@@ -1,37 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Cbw;
+using System;
 using System.Linq;
-using System.Web;
-using System.Web.OData;
-using Cbw;
 using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.OData;
 
 namespace CbwSever
 {
-    [EnableQuery]
     public class ChannelsController : ODataController
     {
-        public async Task<IQueryable<Channel>> Get()
+        private ICbwContext context = CbwContextFactory.CreateCbwContext();
+
+        [EnableQuery]
+        public async Task<IHttpActionResult> Get()
         {
-           return await Task.Run(() =>
-            {
-                var a = new Channel() { Id = 0, Title = "5" };
-                var b = new Channel() { Id = 1, Title = "6" };
-
-                var ocl = new[] { a, b };
-
-                return ocl.AsQueryable();
-            });
-            
+            return await Task.FromResult(Ok(context.GetChannels()));
         }
 
-        public void Post(Channel channel)
+        [EnableQuery]
+        public async Task<IHttpActionResult> Get(int key)
+        {
+            return await Task.FromResult(Ok(context.GetChannel(key)));
+        }
+
+        [EnableQuery]
+        public IHttpActionResult GetCaptions(int key)
+        {
+            return Ok(context.GetCaptions(key));
+        }
+
+        public async Task<IHttpActionResult> Post(Channel channel)
         {
             if (ModelState.IsValid)
             {
-
+                return BadRequest(ModelState);
             }
+
+            return await Task.Run(() =>
+            {
+                context.AddChannel(channel);
+                return Created(channel);
+            });
         }
 
+        public IHttpActionResult PostToCaptionsFromChannel(int key, Caption caption)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            context.AddCaption(key, caption);
+            return Created(caption);
+        }
     }
 }

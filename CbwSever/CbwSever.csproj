@@ -96,8 +96,11 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\CaptionConfig.cs" />
+    <Compile Include="Models\CbwContextFactory.cs" />
     <Compile Include="Models\Channel.cs" />
     <Compile Include="Models\Caption.cs" />
+    <Compile Include="Models\ICbwContext.cs" />
+    <Compile Include="Models\InMemoryCbwContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,11 @@ namespace Cbw.Client
         private CbwContainer context;
         private int channel;
 
+        public CbwClient():
+            this(new Uri("http://localhost:3338/cbw"), 0)
+        {
+        }
+
         public CbwClient(Uri serviceUri, int channel)
         {
             this.context = new CbwContainer(serviceUri)

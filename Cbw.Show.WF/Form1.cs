@@ -37,14 +37,6 @@ namespace CbwShow.WF
             string str = "null";
             try
             {
-                //ctx = new CbwContainer(new Uri("http://localhost.fiddler:3338/cbw/"));
-                //var query = ctx.Channels
-                //    .ByKey(new Dictionary<string, object>() { { "Id", 0 } })
-                //    .Captions
-                //    .OrderByDescending(c => c.Time)
-                //    .Take(1)
-                //    .Single();
-                //str = query.Text;
                 str = client.GetLast();
             }
             catch (Exception ex)

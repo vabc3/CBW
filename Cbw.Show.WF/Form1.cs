@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cbw.Client;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -44,6 +45,7 @@ namespace CbwShow.WF
                 //    .Take(1)
                 //    .Single();
                 //str = query.Text;
+                str = client.GetLast();
             }
             catch (Exception ex)
             {
@@ -72,5 +74,6 @@ namespace CbwShow.WF
         }
 
         private Timer t2;
+        private CbwClient client = new CbwClient(new Uri("http://localhost.fiddler:3338/cbw/"), 0);
     }
 }

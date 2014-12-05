@@ -5,7 +5,9 @@
     <link href="Content/bootstrap.min.css" rel="stylesheet"/>
     <link href="Content/bootstrap-theme.min.css" rel="stylesheet"/>
     <link href="Content/custom.css" rel="stylesheet"/>
+    <script type="text/javascript" src="Scripts/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="Scripts/bootstrap.js"></script>
+    <script type="text/javascript" src="Scripts/firecurtain.js"></script>
 </head>
 <body>
     <div class="container">
@@ -18,7 +20,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="index.html">微软年会弹幕发布系统</a>
+                    <a class="navbar-brand" href="index.html">春饼王弹幕发布系统</a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
@@ -33,13 +35,9 @@
         <!-- Main jumbotron for a primary marketing message or call to action -->
         <div class="jumbotron">
             <h2>发布弹幕</h2>
-            <form role="form">
-                <div class="form-group">
                     <label for="message">你的弹幕将在审核后发送到大屏幕上。弹幕内容请遵守法律法规，文明用语。</label>
-                    <input type="email" class="form-control" id="message" placeholder="吐槽吧，骚年！\(^-^)/">
-                </div>
-                <button type="submit" class="btn btn-success">Submit</button>
-            </form>
+                    <input type="text" class="form-control" id="message" placeholder="吐槽吧，骚年！\(^-^)/">
+                <button type="submit" class="btn btn-success" onclick="submitted()">发啦~</button>
         </div>
 
     </div>

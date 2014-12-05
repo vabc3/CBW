@@ -36,7 +36,7 @@
         <div class="jumbotron">
             <h2>发布弹幕</h2>
             <label for="message">你的弹幕将在审核后发送到大屏幕上。弹幕内容请遵守法律法规，文明用语。</label>
-            <input type="text" class="form-control" id="message" placeholder="吐槽吧，骚年！\(^-^)/">
+            <input type="text" onkeypress="keypress(event)" class="form-control" id="message" placeholder="吐槽吧，骚年！\(^-^)/">
             <h4>选择弹幕种类</h4>
             <div class="radio">
                 <label>
@@ -56,7 +56,6 @@
                     好吧，其实没有2B弹幕。。
                 </label>
             </div>
-            <button type="submit" class="btn btn-success" id="submitButton" onclick="submitted()">发啦~</button>
         </div>
         
         <div>

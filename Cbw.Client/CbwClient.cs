@@ -77,6 +77,7 @@ namespace Cbw.Client
                         }
                     }
                 }
+
                 await Task.Delay(UpdataInterval);
             }
         }

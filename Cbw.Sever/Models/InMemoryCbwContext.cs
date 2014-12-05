@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace CbwSever
+namespace Cbw
 {
     internal class InMemoryCbwContext : ICbwContext
     {

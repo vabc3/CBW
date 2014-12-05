@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CbwSever
+namespace Cbw
 {
     internal interface ICbwContext
     {

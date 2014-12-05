@@ -1,5 +1,4 @@
-﻿
-namespace CbwSever
+﻿namespace Cbw
 {
     internal static class CbwContextFactory
     {

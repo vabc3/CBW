@@ -1,11 +1,8 @@
-﻿using Cbw;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.OData;
 
-namespace CbwSever
+namespace Cbw.Sever
 {
     public class ChannelsController : ODataController
     {

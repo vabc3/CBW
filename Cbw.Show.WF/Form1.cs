@@ -1,5 +1,4 @@
-﻿using CbwClient;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -37,14 +36,14 @@ namespace CbwShow.WF
             string str = "null";
             try
             {
-                ctx = new CbwContainer(new Uri("http://localhost.fiddler:3338/cbw/"));
-                var query = ctx.Channels
-                    .ByKey(new Dictionary<string, object>() { { "Id", 0 } })
-                    .Captions
-                    .OrderByDescending(c => c.Time)
-                    .Take(1)
-                    .Single();
-                str = query.Text;
+                //ctx = new CbwContainer(new Uri("http://localhost.fiddler:3338/cbw/"));
+                //var query = ctx.Channels
+                //    .ByKey(new Dictionary<string, object>() { { "Id", 0 } })
+                //    .Captions
+                //    .OrderByDescending(c => c.Time)
+                //    .Take(1)
+                //    .Single();
+                //str = query.Text;
             }
             catch (Exception ex)
             {
@@ -73,6 +72,5 @@ namespace CbwShow.WF
         }
 
         private Timer t2;
-        private CbwContainer ctx;
     }
 }

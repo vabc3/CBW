@@ -1,6 +1,6 @@
 ﻿using System.Web.Http;
 
-namespace CbwSever
+namespace Cbw.Sever
 {
     public class WebApiApplication : System.Web.HttpApplication
     {

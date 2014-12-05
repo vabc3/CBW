@@ -3,7 +3,7 @@ using System.Web.Http;
 using System.Web.OData.Builder;
 using System.Web.OData.Extensions;
 
-namespace CbwSever
+namespace Cbw.Sever
 {
     public static class WebApiConfig
     {

@@ -37,6 +37,17 @@ namespace Cbw.Client
 
         public int UpdataInterval { get; set; }
 
+        public void PushTest(string text)
+        {
+            var query = this.context.Channels.ByKey(0) as DataServiceQuerySingle<Channel>;
+            var task = query.BeginGetValue((a) => { }, null);
+            var ch = query.EndGetValue(task);
+
+            this.context.AddRelatedObject(ch, "Captions", new Caption() { Text = text });
+            var t = this.context.SaveChangesAsync();
+            t.Wait();
+        }
+
         public void StartPush()
         {
             Task.Run(() => UpdateQueue());
@@ -64,7 +75,7 @@ namespace Cbw.Client
                     .Where(c => c.Id > maxId && c.Time > DateTime.Now.Subtract(new TimeSpan(0, 0, 0, UpdataInterval * 2)))
                     .OrderBy(c => c.Time)
                     as DataServiceQuery<Caption>;
-                var captions = await query.ExecuteAsync();
+                var captions = (await query.ExecuteAsync()).ToList();
 
                 if (captions.Any())
                 {

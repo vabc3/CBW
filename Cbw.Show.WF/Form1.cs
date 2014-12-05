@@ -58,7 +58,7 @@ namespace CbwShow.WF
         void t2_Tick(object sender, System.EventArgs e)
         {
             label1.Left = label1.Left - 3;
-            if (label1.Left < 0)
+            if (label1.Right < 0)
             {
                 t2.Stop();
                 label1.Left = this.Right;

@@ -11,6 +11,9 @@ namespace Cbw
         private List<Channel> channels;
         private ReaderWriterLockSlim channelsLock = new ReaderWriterLockSlim();
 
+        // should have one per channel
+        private ReaderWriterLockSlim captionsLock = new ReaderWriterLockSlim();
+
         public InMemoryCbwContext()
         {
             var channel0 = new Channel { Id = 0, Title = "Public Channel", Description = "Welcome to CBW" };
@@ -53,9 +56,19 @@ namespace Cbw
 
         public void AddCaption(int channelId, Caption caption)
         {
-            var channel = getChannelById(channelId);
-            caption.Time = DateTimeOffset.Now;
-            channel.Captions.Add(caption);
+            captionsLock.EnterWriteLock();
+            try
+            {
+                var channel = getChannelById(channelId);
+                var id = channel.Captions.Max(c => c.Id);
+                caption.Id = id + 1;
+                caption.Time = DateTimeOffset.Now;
+                channel.Captions.Add(caption);
+            }
+            finally
+            {
+                captionsLock.ExitWriteLock();
+            }
         }
 
         private Channel getChannelById(int channelId)

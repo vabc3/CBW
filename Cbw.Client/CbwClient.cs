@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.OData.Client;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Cbw.Client
 {
@@ -9,13 +11,15 @@ namespace Cbw.Client
     {
         private CbwContainer context;
         private int channel;
+        private Queue<Caption> captionQueue;
+        private int maxId;
 
-        public CbwClient():
+        public CbwClient() :
             this(new Uri("http://localhost:3338/cbw"), 0)
         {
         }
 
-        public CbwClient(Uri serviceUri, int channel)
+        public CbwClient(Uri serviceUri, int channel = 0)
         {
             this.context = new CbwContainer(serviceUri)
             {
@@ -23,11 +27,91 @@ namespace Cbw.Client
             };
 
             this.channel = channel;
+            this.maxId = -1;
+
+            this.captionQueue = new Queue<Caption>();
+            this.UpdataInterval = 3000;
+        }
+
+        public event Action<Caption> OnCaptionArrive;
+
+        public int UpdataInterval { get; set; }
+
+        public void PushTest(string text)
+        {
+            var query = this.context.Channels.ByKey(0) as DataServiceQuerySingle<Channel>;
+            var task = query.BeginGetValue((a) => { }, null);
+            var ch = query.EndGetValue(task);
+
+            this.context.AddRelatedObject(ch, "Captions", new Caption() { Text = text });
+            var t = this.context.SaveChangesAsync();
+            t.Wait();
+        }
+
+        public void StartPush()
+        {
+            Task.Run(() => UpdateQueue());
+            Task.Run(() => PushWork());
         }
 
         public string GetLast()
         {
-            return this.context.Channels.ByKey(0).Captions.OrderByDescending(c => c.Time).Take(1).Single().Text;
+            var query = this.context.Channels.ByKey(0).Captions.OrderByDescending(c => c.Time).Take(1) as DataServiceQuery<Caption>;
+            var captions = query.ExecuteAsync();
+            captions.Wait();
+            var text = captions.Result.Single().Text;
+
+            return text;
         }
+
+        private async void UpdateQueue()
+        {
+            while (true)
+            {
+                var query = context
+                    .Channels
+                    .ByKey(0)
+                    .Captions
+                    .Where(c => c.Id > maxId && c.Time > DateTime.Now.Subtract(new TimeSpan(0, 0, 0, UpdataInterval * 2)))
+                    .OrderBy(c => c.Time)
+                    as DataServiceQuery<Caption>;
+                var captions = (await query.ExecuteAsync()).ToList();
+
+                if (captions.Any())
+                {
+                    this.maxId = captions.Last().Id;
+                    lock (this.captionQueue)
+                    {
+                        foreach (var caption in captions)
+                        {
+                            this.captionQueue.Enqueue(caption);
+                        }
+                    }
+                }
+
+                await Task.Delay(UpdataInterval);
+            }
+        }
+
+        private async void PushWork()
+        {
+            while (true)
+            {
+                if (this.captionQueue.Any())
+                {
+                    lock (this.captionQueue)
+                    {
+                        while (this.captionQueue.Any())
+                        {
+                            var item = this.captionQueue.Dequeue();
+                            this.OnCaptionArrive(item);
+                        }
+                    }
+                }
+
+                await Task.Delay(500);
+            }
+        }
+
     }
 }

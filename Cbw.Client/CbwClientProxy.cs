@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generation date: 12/5/2014 1:31:02 PM
+// Generation date: 12/5/2014 3:34:42 PM
 namespace Cbw.Client
 {
     /// <summary>

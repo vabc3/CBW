@@ -8,9 +8,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Configuration;
+using System.Threading;
 
 namespace CbwShow.WF
 {
+    class Capt
+    {
+        public Label Label { get; set; }
+    }
+
     public partial class Form1 : Form
     {
         public Form1()
@@ -23,57 +30,75 @@ namespace CbwShow.WF
             this.timer1.Interval = 500;
             this.timer1.Tick += timer1_Tick;
             this.timer1.Start();
+            this.labels = new List<Label>();
+            this.queue = new Queue<Capt>();
+            string uri = ConfigurationManager.AppSettings["cbwServiceUri"] ?? "http://localhost.fiddler:3338/cbw/";
+            this.client = new CbwClient(new Uri(uri), 0);
+            this.client.OnCaptionArrive += client_OnCaptionArrive;
+            this.client.StartPush();
+        }
 
-            t2 = new Timer();
-            t2.Interval = 15;
-            t2.Tick += t2_Tick;
-
-
+        void client_OnCaptionArrive(Caption caption)
+        {
+            var t = new Label();
+            t.Text = caption.Text;
+            t.Left = panel1.Right;
+            lock (this.queue)
+            {
+                this.queue.Enqueue(new Capt { Label = t });
+            }
         }
 
         void timer1_Tick(object sender, System.EventArgs e)
         {
-            timer1.Stop();
-            string str = "null";
-            try
+            if (this.queue.Any())
             {
-                //ctx = new CbwContainer(new Uri("http://localhost.fiddler:3338/cbw/"));
-                //var query = ctx.Channels
-                //    .ByKey(new Dictionary<string, object>() { { "Id", 0 } })
-                //    .Captions
-                //    .OrderByDescending(c => c.Time)
-                //    .Take(1)
-                //    .Single();
-                //str = query.Text;
-                str = client.GetLast();
-            }
-            catch (Exception ex)
-            {
-                str = "Err!!" + ex.Message;
+                lock (this.queue)
+                {
+                    while (queue.Any())
+                    {
+                        var cap = this.queue.Dequeue();
+                        this.labels.Add(cap.Label);
+                        this.panel1.Controls.Add(cap.Label);
+                    }
+                }
             }
 
-            process(str);
-        }
+            IList<Label> removes = new List<Label>();
 
-        void process(string text)
-        {
-            label1.Text = text;
-
-            t2.Start();
-        }
-
-        void t2_Tick(object sender, System.EventArgs e)
-        {
-            label1.Left = label1.Left - 3;
-            if (label1.Left < 0)
-            {
-                t2.Stop();
-                label1.Left = this.Right;
-                timer1.Start();
+            foreach(var lab in this.labels){
+                if (lab.Right < panel1.Left)
+                {
+                    removes.Add(lab);
+                }
+                else
+                {
+                    lab.Left -= 20;
+                }
             }
+
+            foreach (var rem in removes)
+            {
+                this.labels.Remove(rem);
+                this.panel1.Controls.Remove(rem);
+            }
+
+            //timer1.Stop();
+            //string str = "null";
+            //try
+            //{
+            //    str = client.GetLast();
+            //}
+            //catch (Exception ex)
+            //{
+            //    str = "Err!!" + ex.Message;
+            //}
+
+            //process(str);
         }
 
-        private Timer t2;
-        private CbwClient client = new CbwClient(new Uri("http://localhost.fiddler:3338/cbw/"), 0);
+        private Queue<Capt> queue;
+        private IList<Label> labels;
+        private CbwClient client;
     }
 }

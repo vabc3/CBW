@@ -35,9 +35,28 @@
         <!-- Main jumbotron for a primary marketing message or call to action -->
         <div class="jumbotron">
             <h2>发布弹幕</h2>
-                    <label for="message">你的弹幕将在审核后发送到大屏幕上。弹幕内容请遵守法律法规，文明用语。</label>
-                    <input type="text" class="form-control" id="message" placeholder="吐槽吧，骚年！\(^-^)/">
-                <button type="submit" class="btn btn-success" onclick="submitted()">发啦~</button>
+            <label for="message">你的弹幕将在审核后发送到大屏幕上。弹幕内容请遵守法律法规，文明用语。</label>
+            <input type="text" class="form-control" id="message" placeholder="吐槽吧，骚年！\(^-^)/">
+            <h4>选择弹幕种类</h4>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="optionsRadios" id="rollMode" value="roll" checked>
+                    滚动弹幕（我是从右边跑入屏幕，从左边跑出屏幕的普通弹幕）
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="optionsRadios" id="fadeMode" value="fade">
+                    会员弹幕（我是生如夏花之灿烂在屏幕中间出现，死如秋叶般静美地消失不见的文艺弹幕）
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="optionsRadios" id="fadeMode" value="fade" disabled>
+                    好吧，其实没有2B弹幕。。
+                </label>
+            </div>
+            <button type="submit" class="btn btn-success" onclick="submitted()">发啦~</button>
         </div>
 
     </div>

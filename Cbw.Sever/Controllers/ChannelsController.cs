@@ -28,7 +28,7 @@ namespace Cbw.Sever
 
         public async Task<IHttpActionResult> Post(Channel channel)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }

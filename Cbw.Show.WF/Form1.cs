@@ -1,25 +1,20 @@
 ﻿using Cbw.Client;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+using System.Configuration;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Configuration;
-using System.Threading;
 
-namespace CbwShow.WF
+namespace Cbw.Show.WF
 {
-    class Capt
-    {
-        public Label Label { get; set; }
-    }
-
     public partial class Form1 : Form
     {
+        private CbwClient client;
+        private AniManager aniManager = new AniManager();
+        private bool showOsd;
+        private bool fs;
+
         public Form1()
         {
             InitializeComponent();
@@ -27,78 +22,192 @@ namespace CbwShow.WF
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.timer1.Interval = 500;
-            this.timer1.Tick += timer1_Tick;
-            this.timer1.Start();
-            this.labels = new List<Label>();
-            this.queue = new Queue<Capt>();
-            string uri = ConfigurationManager.AppSettings["cbwServiceUri"] ?? "http://localhost.fiddler:3338/cbw/";
+            this.timer2.Interval = 20;
+            this.timer2.Tick += Animate;
+            this.timer2.Start();
+
+            this.textBox1.BackColor = Color.Black;
+
+            this.showOsd = false;
+
+            string uri = ConfigurationManager.AppSettings["cbwServiceUri"];
             this.client = new CbwClient(new Uri(uri), 0);
-            this.client.OnCaptionArrive += client_OnCaptionArrive;
-            this.client.StartPush();
+            this.client.OnCaptionArrive += (caption) => this.aniManager.Register(caption, this.panel1);
+            this.client.OnSpeedChange += this.aniManager.UpdateSpeed;
+            this.client.Start();
+            this.Welcome();
         }
 
-        void client_OnCaptionArrive(Caption caption)
+        private void Welcome()
         {
-            var t = new Label();
-            t.Text = caption.Text;
-            t.Left = panel1.Right;
-            lock (this.queue)
+            Task.Run(async () => await this.client.Push(new Caption()
             {
-                this.queue.Enqueue(new Capt { Label = t });
-            }
-        }
-
-        void timer1_Tick(object sender, System.EventArgs e)
-        {
-            if (this.queue.Any())
-            {
-                lock (this.queue)
+                Text = "Watching " + this.client.Channel.Title,
+                Config = new CaptionConfig
                 {
-                    while (queue.Any())
+                    Display = DisplayMode.Fade
+                }
+            }));
+        }
+
+        private void Animate(object sender, EventArgs e)
+        {
+            if (showOsd)
+            {
+                this.label1.Text = getOsd();
+            }
+
+            this.aniManager.Run();
+        }
+
+        private string getOsd()
+        {
+            return string.Format("{0} {1} {2}x",
+                this.client.IsLive ? "LIVE" : "RECO",
+                this.client.StageTime.ToString("HH:mm:ss.f"),
+                this.client.Speed == 1 ? "1/2" : (this.client.Speed / 2).ToString());
+        }
+
+        private void Panel1_Resize(object sender, EventArgs e)
+        {
+            this.aniManager.UpdateConfig(this.panel1.Height, this.panel1.Width);
+        }
+
+        private async void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.L:
+                    await this.client.Push(new Caption() { Text = "@" });
+                    break;
+                case Keys.O:
+                    this.showOsd = !this.label1.Visible;
+                    this.label1.Visible = this.showOsd;
+                    break;
+                case Keys.R:
+                    this.client.StageTime = this.client.StageTime.AddSeconds(-10);
+                    break;
+                case Keys.E:
+                    this.client.IsLive = true;
+                    break;
+                case Keys.F:
+                    if (!this.fs)
                     {
-                        var cap = this.queue.Dequeue();
-                        this.labels.Add(cap.Label);
-                        this.panel1.Controls.Add(cap.Label);
+                        if (this.WindowState == FormWindowState.Maximized)
+                        {
+                            this.Hide();
+                            this.WindowState = FormWindowState.Normal;
+                        }
+                        this.FormBorderStyle = FormBorderStyle.None;
+                        this.WindowState = FormWindowState.Maximized;
+                        this.Show();
+
+                        this.fs = true;
                     }
-                }
+                    else
+                    {
+                        this.WindowState = FormWindowState.Normal;
+                        this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+                        this.fs = false;
+                    }
+                    break;
+                case Keys.Q:
+                    Application.Exit();
+                    break;
+                case Keys.Up:
+                    this.client.SpeedShiftUp();
+                    break;
+                case Keys.Down:
+                    this.client.SpeedShiftDown();
+                    break;
+
+                case Keys.Enter:
+                    textBox1.Visible = true;
+                    textBox1.Focus();
+                    break;
+
+                case Keys.ShiftKey:
+                    if (this.aniManager.Config.Direction)
+                    {
+                        this.aniManager.Config.Direction = false;
+                        this.client.Direction = false;
+                    }
+                    break;
+                default:
+                    break;
             }
-
-            IList<Label> removes = new List<Label>();
-
-            foreach(var lab in this.labels){
-                if (lab.Right < panel1.Left)
-                {
-                    removes.Add(lab);
-                }
-                else
-                {
-                    lab.Left -= 20;
-                }
-            }
-
-            foreach (var rem in removes)
-            {
-                this.labels.Remove(rem);
-                this.panel1.Controls.Remove(rem);
-            }
-
-            //timer1.Stop();
-            //string str = "null";
-            //try
-            //{
-            //    str = client.GetLast();
-            //}
-            //catch (Exception ex)
-            //{
-            //    str = "Err!!" + ex.Message;
-            //}
-
-            //process(str);
         }
 
-        private Queue<Capt> queue;
-        private IList<Label> labels;
-        private CbwClient client;
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.ShiftKey)
+            {
+                this.aniManager.Config.Direction = true;
+                this.client.Direction = true;
+            }
+        }
+
+        private async void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Escape)
+            {
+                this.textBox1.Visible = false;
+                this.Focus();
+
+                if (e.KeyCode == Keys.Enter)
+                {
+                    await command(textBox1.Text);
+                }
+
+                this.textBox1.Text = string.Empty;
+            }
+        }
+
+        private async Task command(string text)
+        {
+            string cmd;
+            string dat = null;
+            int idx = text.IndexOf(' ');
+            if (idx < 0 || idx==text.Length)
+            {
+                cmd = text;
+            }
+            else
+            {
+                cmd = text.Substring(0, idx);
+                dat = text.Substring(idx + 1);
+            }
+
+            if (cmd == "s")
+            {
+                if (string.IsNullOrWhiteSpace(dat)) return; //clientbug?
+                await this.client.Push(new Caption()
+                {
+                    Text = dat,
+                    Config = new CaptionConfig
+                    {
+                        Display = DisplayMode.Fade
+                    }
+                });
+            }
+            else if (cmd == "q")
+            {
+                Application.Exit();
+            }
+            else if (cmd == "j")
+            {
+                DateTimeOffset da;
+                if (DateTimeOffset.TryParse(dat, out da))
+                {
+                    this.client.StageTime = da;
+                }
+            }
+            else if (cmd == "c")
+            {
+                this.aniManager.Clear();
+            }
+        }
+
+
     }
 }

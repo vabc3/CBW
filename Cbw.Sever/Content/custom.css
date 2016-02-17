@@ -6,3 +6,15 @@
 #message {
     margin-bottom: 10px;
 }
+
+#odata-logo {
+    margin-right: 5px;
+    float: left;
+    max-height: 30px;
+    width:auto;
+}
+
+#odata-slogan {
+    padding-top:6px;
+    font-family: 'Monotype Corsiva','Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}

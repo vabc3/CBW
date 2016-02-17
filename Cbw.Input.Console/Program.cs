@@ -11,11 +11,20 @@ namespace Cbw.Input.Con
     {
         static void Main(string[] args)
         {
-            var ctx = new CbwClient();
+            string serviceUri = args.Length > 0 ? args[0] : "http://localhost:3338/cbw";
+
+            var ctx = new CbwPluggableClient(new Uri(serviceUri));
+            ctx.RegisterPlugin(new EchoPlugin()).Wait();
+            // ctx.RegisterPlugin(new WikiPlugin()).Wait();
+            ctx.Start();
+
+            Console.WriteLine("Connected to '{0}'", ctx.Channel.Title);
+            Console.WriteLine(ctx.Channel.Description);
+
             string text = Console.ReadLine();
             while (!string.IsNullOrEmpty(text))
             {
-                ctx.PushTest(text);
+                var bol =ctx.Push(new Caption() { Text = text }).Result;
                 text = Console.ReadLine();
             }
         }

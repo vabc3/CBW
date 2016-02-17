@@ -15,7 +15,7 @@ namespace Cbw.Show.Con
 
             ctx.OnCaptionArrive += ctx_OnCaptionArrive;
 
-            ctx.StartPush();
+            ctx.Start();
             Console.ReadLine();
 
         }

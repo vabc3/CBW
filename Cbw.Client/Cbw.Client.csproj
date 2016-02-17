@@ -43,6 +43,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CbwPluggableClient.cs" />
+    <Compile Include="ICbwClientPlugin.cs" />
     <Compile Include="CbwClientProxy.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
